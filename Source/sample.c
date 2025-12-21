@@ -81,16 +81,16 @@ int main(void)
 	//TouchPanel_Calibrate();								/* Calibrazione touch display         */
 
 	tetris_init();
-	set_random_seed(LPC_TIM0->TC); // Use Timer0 counter as seed
+	
 
 	init_RIT(0x0007A120);									/* RIT Initialization 20 msec       	*/
 	enable_RIT();
 
 	
-	/*
+	
 	init_timer(0, 0, 0, 3, 0x017D7840); 	// Timer0 inizializzazione con periodo 1 sec
 	enable_timer(0);
-	*/
+	
 	
 	
 	LPC_SC->PCON |= 0x1;									/* power-down	mode										*/

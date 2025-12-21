@@ -53,6 +53,7 @@ void toggle_pause() {
         GUI_Text(FIELD_WIDTH + 5, 260, (uint8_t *)"PLAYING", Green, COLOR_BACKGROUND);
         
         if (first_start) {
+						set_random_seed(LPC_TIM0->TC); // Use Timer0 counter as seed
             spawn_tetromino();
             draw_tetromino();
             first_start = 0;
