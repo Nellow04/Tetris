@@ -21,13 +21,16 @@ int main(void)
 	tetris_init();
 	
 
-	init_RIT(0x0007A120);									/* RIT Initialization 20 msec       	*/
-	enable_RIT();
+	//init_RIT(0x0007A120);									/* RIT Initialization 20 msec       	*/
+	//enable_RIT();
 
 	
 	
 	init_timer(0, 0, 0, 3, 0x0007A120); 	// Timer0 inizializzazione con periodo 1 sec
 	enable_timer(0);
+	
+	init_timer(2, 0, 0, 3, 0x0007A120); 	// Timer2 inizializzazione con periodo 20ms (Joystick)
+	enable_timer(2);
 	
 	
 	
