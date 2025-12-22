@@ -10,6 +10,7 @@
 #include "LPC17xx.h"
 #include "timer.h"
 #include "../led/led.h"
+#include "../tetris/tetris.h"
 
 /******************************************************************************
 ** Function name:		Timer0_IRQHandler
@@ -27,7 +28,7 @@ void TIMER0_IRQHandler (void)
 	/* Match register 0 interrupt service routine */
 	if (LPC_TIM0->IR & 01)
 	{
-		
+		handle_timer_tick();
 		LPC_TIM0->IR = 1;			/* clear interrupt flag */
 	}
 		/* Match register 1 interrupt service routine */

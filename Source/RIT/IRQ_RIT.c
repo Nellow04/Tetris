@@ -93,7 +93,7 @@ void RIT_IRQHandler (void)
 		J_left++;
 		switch(J_left){
 			case 1:
-				//code here
+				move_left();
 				left_activate =1;
 			
 				if(left_activate && up_activate){  // nord ovest
@@ -121,7 +121,7 @@ void RIT_IRQHandler (void)
 		J_right++;
 		switch(J_right){
 			case 1:
-				//code here
+				move_right();
 			right_activate =1;
 			
 			if(up_activate && right_activate){ 		// nord est
@@ -146,7 +146,7 @@ void RIT_IRQHandler (void)
 		J_up++;
 		switch(J_up){
 			case 1:
-				//code here
+				rotate_piece();
 				up_activate =1;
 				if(left_activate && up_activate){  // nord ovest
 				}
