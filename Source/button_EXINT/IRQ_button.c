@@ -22,6 +22,7 @@ void EINT1_IRQHandler (void)	  	/* KEY1														 */
 	LPC_PINCON->PINSEL4    &= ~(1 << 22);     /* GPIO pin selection */
 	down_1=1;
 	LPC_SC->EXTINT &= (1 << 1);     /* clear pending interrupt         */
+	toggle_pause();
 	reset_RIT();
 }
 
