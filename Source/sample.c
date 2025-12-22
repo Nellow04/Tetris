@@ -26,10 +26,10 @@ int main(void)
 
 	
 	
-	init_timer(0, 0, 0, 3, 0x0007A120); 	// Timer0 inizializzazione con periodo 1 sec
+	init_timer(0, 0, 0, 3, 0xF4240); 	// Timer0 inizializzazione con periodo 1 sec
 	enable_timer(0);
 	
-	init_timer(2, 0, 0, 3, 0x0007A120); 	// Timer2 inizializzazione con periodo 20ms (Joystick)
+	init_timer(2, 0, 0, 3, 0x0003D090); 	// Timer2 inizializzazione con periodo 20ms (Joystick)
 	enable_timer(2);
 	
 	
