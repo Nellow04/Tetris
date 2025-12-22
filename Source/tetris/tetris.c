@@ -281,3 +281,14 @@ void handle_timer_tick(void) {
         place_tetromino();
     }
 }
+
+void hard_drop(void) {
+    if (game_state != GAME_RUNNING) return;
+    
+    clear_tetromino();
+    while (!check_collision(current_x, current_y + 1, current_rotation)) {
+        current_y++;
+    }
+    draw_tetromino();
+    place_tetromino();
+}

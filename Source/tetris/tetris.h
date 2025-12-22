@@ -50,5 +50,6 @@ void handle_timer_tick(void);
 void move_left(void);
 void move_right(void);
 void rotate_piece(void);
+void hard_drop(void);
 
 #endif

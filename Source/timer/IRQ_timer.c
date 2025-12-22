@@ -147,6 +147,9 @@ void TIMER2_IRQHandler (void)
 		switch(J_down){
 			case 1:
 				//code here
+				LPC_TIM0->MR0 = 0x7A120; // 0.5s
+				LPC_TIM0->TCR = 2;       // Reset
+				LPC_TIM0->TCR = 1;       // Enable
 			down_activate =1;
 			
 			if (right_activate && down_activate){  // sud est
@@ -162,6 +165,11 @@ void TIMER2_IRQHandler (void)
 		}
 	}
 	else{
+			if(J_down != 0) {
+				LPC_TIM0->MR0 = 0xF4240; // 1s
+				LPC_TIM0->TCR = 2;       // Reset
+				LPC_TIM0->TCR = 1;       // Enable
+			}
 			J_down=0;
 			// scrivi  qui se vuoi gestire quando viene rilasciato 
 			down_activate =0;
@@ -286,7 +294,7 @@ void TIMER2_IRQHandler (void)
 		if((LPC_GPIO2->FIOPIN & (1<<12)) == 0){	/* KEY2 pressed */			
 			switch(down_2){
 				case 2:		
-					//code here
+					hard_drop();
 					break;
 				default:
 					break;
