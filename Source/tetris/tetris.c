@@ -4,13 +4,13 @@
 #include <stdlib.h>
 
 #define BOARD_Y 0
-#define BOARD_X 3
+#define BOARD_X 3		// Lascio 3 pixel in modo tale da non disegnare sopra i bordi
 
 /* Variabili globali */
 volatile uint32_t score = 0;
 volatile uint32_t high_score = 0;
 volatile uint32_t lines_cleared = 0;
-volatile GameState game_state = GAME_PAUSED;
+volatile GameState game_state = GAME_PAUSED;		// Valore iniziale dello stato del gioco
 
 /* Stato del pezzo corrente */
 volatile int current_x = 0;
@@ -23,13 +23,13 @@ uint16_t board[TETRIS_ROWS][TETRIS_COLS] = {0};
 
 /* Colori dei 7 pezzi */
 uint16_t piece_colors[7] = {
-    Cyan,       // I
-    Blue,       // J
-    COLOR_ORANGE, // L
-    Yellow,     // O
-    Green,      // S
-    Magenta,    // T
-    Red         // Z
+    Cyan,       		// I
+    Blue,       		// J
+    COLOR_ORANGE, 	// L
+    Yellow,     		// O
+    Green,     			// S
+    Magenta,    		// T
+    Red        			// Z
 };
 
 /* 
@@ -88,7 +88,7 @@ const uint8_t pieces[7][4][4][4] = {
     }
 };
 
-/* Forward declarations */
+/* Prototipi delle funzioni */
 void spawn_tetromino(void);
 void draw_tetromino(void);
 void clear_tetromino(void);
