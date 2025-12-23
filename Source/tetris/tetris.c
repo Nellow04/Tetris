@@ -130,6 +130,9 @@ void tetris_init(void) {
             board[i][j] = 0;
         }
     }
+    
+    score = 0;
+    lines_cleared = 0;
 
     draw_grid();
     update_score();
@@ -254,6 +257,15 @@ void check_lines(void) {
     
     if(lines_cleared_now > 0) {
         lines_cleared += lines_cleared_now;
+        
+        if (lines_cleared_now == 1) {
+            score += 100;
+        } else if (lines_cleared_now == 4) {
+            score += 600;
+        } else {
+            score += 100 * lines_cleared_now;
+        }
+        
         update_score();
         
         // Ridisegna TUTTA la board per sicurezza
@@ -296,10 +308,20 @@ void place_tetromino(void) {
     
     check_lines();
     
+    score += 10;
+    update_score();
+    
     spawn_tetromino();
     if (check_collision(current_x, current_y, current_rotation)) {
         game_state = GAME_OVER;
+        if (score > high_score) {
+            high_score = score;
+            LPC_RTC->GPREG0 = high_score; // Salva nell'RTC Backup Register
+        }
         GUI_Text(FIELD_WIDTH + BOARD_X + 5, 260, (uint8_t *)"GAME OVER", Red, COLOR_BACKGROUND);
+        
+        // Reset game state for next game (except high score)
+        tetris_init();
     } else {
         draw_tetromino();
     }
