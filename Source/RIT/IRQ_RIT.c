@@ -49,10 +49,7 @@ void RIT_IRQHandler (void)
 		J_down++;
 		switch(J_down){
 			case 1:
-				// Wait for stable signal (debounce)
-				break;
-			case 2:
-				LPC_TIM0->MR0 = 0xBEBC20; // 0.5s (25MHz * 0.5)
+				LPC_TIM0->MR0 = 0x7A120; // 0.5s (25MHz * 0.5)
 				LPC_TIM0->TCR = 2;       // Reset
 				LPC_TIM0->TCR = 1;       // Enable
 			    down_activate = 1;
@@ -62,10 +59,10 @@ void RIT_IRQHandler (void)
 		}
 	}
 	else{
-			if(J_down >= 2) {
-				LPC_TIM0->MR0 = 0x17D7840; // 1s (25MHz * 1)
-				// Non resettiamo il timer qui per evitare blocchi se il segnale rimbalza
-				// Il timer continuerà a contare fino al nuovo limite (più alto)
+			if(J_down != 0) {
+				LPC_TIM0->MR0 = 0xF4240; // 1s (25MHz * 1)
+				LPC_TIM0->TCR = 2;       // Reset
+				LPC_TIM0->TCR = 1;       // Enable
 			}
 			J_down=0;
 			down_activate = 0;
