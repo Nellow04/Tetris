@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define BOARD_Y 0
+#define BOARD_X 3
+
 /* Variabili globali */
 volatile uint32_t score = 0;
 volatile uint32_t high_score = 0;
@@ -97,25 +100,25 @@ void draw_grid(void) {
     /* Creazione dei bordi */
     for (i = 0; i < 3; i++) {
         LCD_DrawLine(i, 0, i, FIELD_HEIGHT, White);
-        LCD_DrawLine(FIELD_WIDTH + i, 0, FIELD_WIDTH + i, FIELD_HEIGHT, White);
-        LCD_DrawLine(0, i, FIELD_WIDTH, i, White);
-        LCD_DrawLine(0, FIELD_HEIGHT - 1 - i, FIELD_WIDTH, FIELD_HEIGHT - 1 - i, White);
+        LCD_DrawLine(FIELD_WIDTH + BOARD_X + i, 0, FIELD_WIDTH + BOARD_X + i, FIELD_HEIGHT, White);
+        LCD_DrawLine(0, i, FIELD_WIDTH + BOARD_X + 3, i, White);
+        LCD_DrawLine(0, FIELD_HEIGHT - 1 - i, FIELD_WIDTH + BOARD_X + 3, FIELD_HEIGHT - 1 - i, White);
     }
     /* Labels */
-    GUI_Text(FIELD_WIDTH + 5, 20, (uint8_t *)"Score:", COLOR_TEXT, COLOR_BACKGROUND);
-    GUI_Text(FIELD_WIDTH + 5, 100, (uint8_t *)"High", COLOR_TEXT, COLOR_BACKGROUND);
-    GUI_Text(FIELD_WIDTH + 5, 120, (uint8_t *)"Score:", COLOR_TEXT, COLOR_BACKGROUND);
-    GUI_Text(FIELD_WIDTH + 5, 200, (uint8_t *)"Lines:", COLOR_TEXT, COLOR_BACKGROUND);
+    GUI_Text(FIELD_WIDTH + BOARD_X + 5, 20, (uint8_t *)"Score:", COLOR_TEXT, COLOR_BACKGROUND);
+    GUI_Text(FIELD_WIDTH + BOARD_X + 5, 100, (uint8_t *)"High", COLOR_TEXT, COLOR_BACKGROUND);
+    GUI_Text(FIELD_WIDTH + BOARD_X + 5, 120, (uint8_t *)"Score:", COLOR_TEXT, COLOR_BACKGROUND);
+    GUI_Text(FIELD_WIDTH + BOARD_X + 5, 200, (uint8_t *)"Lines:", COLOR_TEXT, COLOR_BACKGROUND);
 }
 
 void update_score(void) {
     char buffer[20];
     sprintf(buffer, "%d", score);
-    GUI_Text(FIELD_WIDTH + 5, 40, (uint8_t *)buffer, Yellow, COLOR_BACKGROUND);
+    GUI_Text(FIELD_WIDTH + BOARD_X + 5, 40, (uint8_t *)buffer, Yellow, COLOR_BACKGROUND);
     sprintf(buffer, "%d", high_score);
-    GUI_Text(FIELD_WIDTH + 5, 140, (uint8_t *)buffer, Yellow, COLOR_BACKGROUND);
+    GUI_Text(FIELD_WIDTH + BOARD_X + 5, 140, (uint8_t *)buffer, Yellow, COLOR_BACKGROUND);
     sprintf(buffer, "%d", lines_cleared);
-    GUI_Text(FIELD_WIDTH + 5, 220, (uint8_t *)buffer, Yellow, COLOR_BACKGROUND);
+    GUI_Text(FIELD_WIDTH + BOARD_X + 5, 220, (uint8_t *)buffer, Yellow, COLOR_BACKGROUND);
 }
 
 void tetris_init(void) {
@@ -133,7 +136,7 @@ void tetris_init(void) {
    
     game_state = GAME_PAUSED;
     first_start = 1;
-    GUI_Text(FIELD_WIDTH + 5, 260, (uint8_t *)"PAUSED", Red, COLOR_BACKGROUND);
+    GUI_Text(FIELD_WIDTH + BOARD_X + 5, 260, (uint8_t *)"PAUSED", Red, COLOR_BACKGROUND);
 }
 
 void set_random_seed(int seed) {
@@ -143,12 +146,12 @@ void set_random_seed(int seed) {
 void toggle_pause(void) {
     if (game_state == GAME_RUNNING) {
         game_state = GAME_PAUSED;
-        GUI_Text(FIELD_WIDTH + 5, 260, (uint8_t *)"        ", COLOR_BACKGROUND, COLOR_BACKGROUND);
-        GUI_Text(FIELD_WIDTH + 5, 260, (uint8_t *)"PAUSED", Red, COLOR_BACKGROUND);
+        GUI_Text(FIELD_WIDTH + BOARD_X + 5, 260, (uint8_t *)"        ", COLOR_BACKGROUND, COLOR_BACKGROUND);
+        GUI_Text(FIELD_WIDTH + BOARD_X + 5, 260, (uint8_t *)"PAUSED", Red, COLOR_BACKGROUND);
     } else if (game_state == GAME_PAUSED) {
         game_state = GAME_RUNNING;
-        GUI_Text(FIELD_WIDTH + 5, 260, (uint8_t *)"        ", COLOR_BACKGROUND, COLOR_BACKGROUND);
-        GUI_Text(FIELD_WIDTH + 5, 260, (uint8_t *)"PLAYING", Green, COLOR_BACKGROUND);
+        GUI_Text(FIELD_WIDTH + BOARD_X + 5, 260, (uint8_t *)"        ", COLOR_BACKGROUND, COLOR_BACKGROUND);
+        GUI_Text(FIELD_WIDTH + BOARD_X + 5, 260, (uint8_t *)"PLAYING", Green, COLOR_BACKGROUND);
         
         if (first_start) {
             set_random_seed(LPC_TIM0->TC);
@@ -171,8 +174,8 @@ void draw_tetromino_color(uint16_t color) {
     for(r = 0; r < 4; r++) {
         for(c = 0; c < 4; c++) {
             if(pieces[current_type][current_rotation][r][c]) {
-                int px = (current_x + c) * BLOCK_SIZE;
-                int py = (current_y + r) * BLOCK_SIZE;
+                int px = BOARD_X + (current_x + c) * BLOCK_SIZE;
+                int py = BOARD_Y + (current_y + r) * BLOCK_SIZE;
                 
                 if (py < 0) continue; // Skip if above screen
 
@@ -216,6 +219,67 @@ int check_collision(int px, int py, int rot) {
     return 0;
 }
 
+void check_lines(void) {
+    int r, c, k, i;
+    int lines_cleared_now = 0;
+    
+    // Scansiona dal basso verso l'alto
+    for(r = TETRIS_ROWS - 1; r >= 0; r--) {
+        int full = 1;
+        for(c = 0; c < TETRIS_COLS; c++) {
+            if(board[r][c] == 0) {
+                full = 0;
+                break;
+            }
+        }
+        
+        if(full) {
+            lines_cleared_now++;
+            
+            // Sposta tutte le righe sopra di una posizione verso il basso
+            for(k = r; k > 0; k--) {
+                for(c = 0; c < TETRIS_COLS; c++) {
+                    board[k][c] = board[k-1][c];
+                }
+            }
+            // Pulisci la prima riga in alto
+            for(c = 0; c < TETRIS_COLS; c++) {
+                board[0][c] = 0;
+            }
+            
+            // Controlla di nuovo la stessa riga (perché ora contiene quella che era sopra)
+            r++; 
+        }
+    }
+    
+    if(lines_cleared_now > 0) {
+        lines_cleared += lines_cleared_now;
+        update_score();
+        
+        // Ridisegna TUTTA la board per sicurezza
+        for(r = 0; r < TETRIS_ROWS; r++) {
+             for(c = 0; c < TETRIS_COLS; c++) {
+                 int px = BOARD_X + c * BLOCK_SIZE;
+                 int py = BOARD_Y + r * BLOCK_SIZE;
+                 uint16_t color = board[r][c];
+                 
+                 if(color == 0) color = COLOR_BACKGROUND;
+                 
+                 for(i = 0; i < BLOCK_SIZE; i++) {
+                    LCD_DrawLine(px, py + i, px + BLOCK_SIZE - 1, py + i, color);
+                 }
+                 
+                 if (color != COLOR_BACKGROUND) {
+                    LCD_DrawLine(px, py, px + BLOCK_SIZE - 1, py, Black);
+                    LCD_DrawLine(px, py + BLOCK_SIZE - 1, px + BLOCK_SIZE - 1, py + BLOCK_SIZE - 1, Black);
+                    LCD_DrawLine(px, py, px, py + BLOCK_SIZE - 1, Black);
+                    LCD_DrawLine(px + BLOCK_SIZE - 1, py, px + BLOCK_SIZE - 1, py + BLOCK_SIZE - 1, Black);
+                 }
+             }
+        }
+    }
+}
+
 void place_tetromino(void) {
     int r, c;
     for(r = 0; r < 4; r++) {
@@ -230,10 +294,12 @@ void place_tetromino(void) {
         }
     }
     
+    check_lines();
+    
     spawn_tetromino();
     if (check_collision(current_x, current_y, current_rotation)) {
         game_state = GAME_OVER;
-        GUI_Text(FIELD_WIDTH + 5, 260, (uint8_t *)"GAME OVER", Red, COLOR_BACKGROUND);
+        GUI_Text(FIELD_WIDTH + BOARD_X + 5, 260, (uint8_t *)"GAME OVER", Red, COLOR_BACKGROUND);
     } else {
         draw_tetromino();
     }
