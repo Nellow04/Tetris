@@ -294,7 +294,6 @@ void TIMER2_IRQHandler (void)
 		if((LPC_GPIO2->FIOPIN & (1<<12)) == 0){	/* KEY2 pressed */			
 			switch(down_2){
 				case 2:		
-					hard_drop();
 					break;
 				default:
 					break;
