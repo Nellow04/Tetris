@@ -147,6 +147,10 @@ void set_random_seed(int seed) {
 }
 
 void toggle_pause(void) {
+    if (game_state == GAME_OVER) {
+        tetris_init();
+        return;
+    }
     if (game_state == GAME_RUNNING) {
         game_state = GAME_PAUSED;
         GUI_Text(FIELD_WIDTH + BOARD_X + 5, 260, (uint8_t *)"        ", COLOR_BACKGROUND, COLOR_BACKGROUND);
@@ -319,9 +323,6 @@ void place_tetromino(void) {
             LPC_RTC->GPREG0 = high_score; // Salva nell'RTC Backup Register
         }
         GUI_Text(FIELD_WIDTH + BOARD_X + 5, 260, (uint8_t *)"GAME OVER", Red, COLOR_BACKGROUND);
-        
-        // Reset game state for next game (except high score)
-        tetris_init();
     } else {
         draw_tetromino();
     }
