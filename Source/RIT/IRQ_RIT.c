@@ -142,8 +142,7 @@ void RIT_IRQHandler (void)
 		down_1++;
 		if((LPC_GPIO2->FIOPIN & (1<<11)) == 0){	/* KEY1 pressed */			
 			switch(down_1){
-				case 2:
-					toggle_pause();					
+				case 2:					
 					break;
 				default:
 					break;
@@ -160,8 +159,7 @@ void RIT_IRQHandler (void)
 		down_2++;	
 		if((LPC_GPIO2->FIOPIN & (1<<12)) == 0){	/* KEY2 pressed */			
 			switch(down_2){
-				case 2:	
-					hard_drop();					
+				case 2:						
 					break;
 				default:
 					break;
