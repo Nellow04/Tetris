@@ -44,6 +44,7 @@ void draw_grid(void);
 void update_score(void);
 void toggle_pause(void);
 void set_random_seed(int seed);
+void draw_board(void);
 
 /* Fisica */
 void handle_timer_tick(void);

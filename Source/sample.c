@@ -18,10 +18,10 @@ int main(void)
 
 	tetris_init();
 
-	init_timer(0, 0, 0, 3, 0xF4240); 				// Timer0 inizializzazione con periodo 1 sec
+	init_timer(0, 0, 0, 3, 0x7A120); 			
 	enable_timer(0);
 	
-	init_timer(2, 0, 0, 3, 0x0003D090); 	// Timer2 inizializzazione con periodo 20ms (Joystick)
+	init_timer(2, 0, 0, 3, 0xC350 ); 	
 	enable_timer(2);
 	
 	

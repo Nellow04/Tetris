@@ -226,6 +226,30 @@ int check_collision(int px, int py, int rot) {
     return 0;
 }
 
+void draw_board(void) {
+    int r, c, i;
+    for(r = 0; r < TETRIS_ROWS; r++) {
+         for(c = 0; c < TETRIS_COLS; c++) {
+             int px = BOARD_X + c * BLOCK_SIZE;
+             int py = BOARD_Y + r * BLOCK_SIZE;
+             uint16_t color = board[r][c];
+             
+             if(color == 0) color = COLOR_BACKGROUND;
+             
+             for(i = 0; i < BLOCK_SIZE; i++) {
+                LCD_DrawLine(px, py + i, px + BLOCK_SIZE - 1, py + i, color);
+             }
+             
+             if (color != COLOR_BACKGROUND) {
+                LCD_DrawLine(px, py, px + BLOCK_SIZE - 1, py, Black);
+                LCD_DrawLine(px, py + BLOCK_SIZE - 1, px + BLOCK_SIZE - 1, py + BLOCK_SIZE - 1, Black);
+                LCD_DrawLine(px, py, px, py + BLOCK_SIZE - 1, Black);
+                LCD_DrawLine(px + BLOCK_SIZE - 1, py, px + BLOCK_SIZE - 1, py + BLOCK_SIZE - 1, Black);
+             }
+         }
+    }
+}
+
 void check_lines(void) {
     int r, c, k, i;
     int lines_cleared_now = 0;
@@ -273,26 +297,7 @@ void check_lines(void) {
         update_score();
         
         // Ridisegna TUTTA la board per sicurezza
-        for(r = 0; r < TETRIS_ROWS; r++) {
-             for(c = 0; c < TETRIS_COLS; c++) {
-                 int px = BOARD_X + c * BLOCK_SIZE;
-                 int py = BOARD_Y + r * BLOCK_SIZE;
-                 uint16_t color = board[r][c];
-                 
-                 if(color == 0) color = COLOR_BACKGROUND;
-                 
-                 for(i = 0; i < BLOCK_SIZE; i++) {
-                    LCD_DrawLine(px, py + i, px + BLOCK_SIZE - 1, py + i, color);
-                 }
-                 
-                 if (color != COLOR_BACKGROUND) {
-                    LCD_DrawLine(px, py, px + BLOCK_SIZE - 1, py, Black);
-                    LCD_DrawLine(px, py + BLOCK_SIZE - 1, px + BLOCK_SIZE - 1, py + BLOCK_SIZE - 1, Black);
-                    LCD_DrawLine(px, py, px, py + BLOCK_SIZE - 1, Black);
-                    LCD_DrawLine(px + BLOCK_SIZE - 1, py, px + BLOCK_SIZE - 1, py + BLOCK_SIZE - 1, Black);
-                 }
-             }
-        }
+        draw_board();
     }
 }
 
@@ -320,7 +325,6 @@ void place_tetromino(void) {
         game_state = GAME_OVER;
         if (score > high_score) {
             high_score = score;
-            LPC_RTC->GPREG0 = high_score; // Salva nell'RTC Backup Register
         }
         GUI_Text(FIELD_WIDTH + BOARD_X + 5, 260, (uint8_t *)"GAME OVER", Red, COLOR_BACKGROUND);
     } else {

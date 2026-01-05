@@ -147,7 +147,7 @@ void TIMER2_IRQHandler (void)
 		switch(J_down){
 			case 1:
 				//code here
-				LPC_TIM0->MR0 = 0x7A120; // 0.5s
+				LPC_TIM0->MR0 = 0x3D090; // 0.25s
 				LPC_TIM0->TCR = 2;       // Reset
 				LPC_TIM0->TCR = 1;       // Enable
 			down_activate =1;
@@ -166,7 +166,7 @@ void TIMER2_IRQHandler (void)
 	}
 	else{
 			if(J_down != 0) {
-				LPC_TIM0->MR0 = 0xF4240; // 1s
+				LPC_TIM0->MR0 = 0x7A120; // 0.5s
 				LPC_TIM0->TCR = 2;       // Reset
 				LPC_TIM0->TCR = 1;       // Enable
 			}
