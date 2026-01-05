@@ -1,8 +1,6 @@
 #include "LPC17xx.h"
 #include "GLCD/GLCD.h"
-#include "TouchPanel/TouchPanel.h"
 #include "timer/timer.h"
-#include "RIT/RIT.h"
 #include "button_EXINT/button.h"
 #include "joystick/joystick.h"
 #include "led/led.h"

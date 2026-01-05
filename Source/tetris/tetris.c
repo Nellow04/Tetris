@@ -6,36 +6,35 @@
 #define BOARD_Y 0
 #define BOARD_X 3		// Lascio 3 pixel in modo tale da non disegnare sopra i bordi
 
-/* Variabili globali */
+// Variabili globali
 volatile uint32_t score = 0;
 volatile uint32_t high_score = 0;
 volatile uint32_t lines_cleared = 0;
-volatile GameState game_state = GAME_PAUSED;		// Valore iniziale dello stato del gioco
+volatile GameState game_state = GAME_PAUSED;
 
-/* Stato del pezzo corrente */
+// Stato del tetromino corrente
 volatile int current_x = 0;
 volatile int current_y = 0;
 volatile int current_type = 0;
 volatile int current_rotation = 0;
 
+// Stato iniziale
 int first_start = 1;
 uint16_t board[TETRIS_ROWS][TETRIS_COLS] = {0};
 
-/* Colori dei 7 pezzi */
+// Colori dei 7 tetromini
 uint16_t piece_colors[7] = {
     Cyan,       		// I
     Blue,       		// J
-    COLOR_ORANGE, 	// L
+    Orange, 				// L
     Yellow,     		// O
     Green,     			// S
     Magenta,    		// T
     Red        			// Z
 };
 
-/* 
- * Definizione dei pezzi (7 tipi, 4 rotazioni, griglia 4x4)
- * 1 = blocco presente, 0 = vuoto
- */
+// Definizione dei tetromini (7 tipi, 4 rotazioni, griglia 4x4)
+// 1 = blocco presente, 0 = vuoto
 const uint8_t pieces[7][4][4][4] = {
     // I
     {
@@ -88,30 +87,27 @@ const uint8_t pieces[7][4][4][4] = {
     }
 };
 
-/* Prototipi delle funzioni */
+// Prototipi
 void spawn_tetromino(void);
 void draw_tetromino(void);
-void clear_tetromino(void);
-int check_collision(int px, int py, int rot);
-void place_tetromino(void);
 
-void draw_grid(void) {
+void draw_grid(void) { // Disegna l'interfaccia statica del gioco
     int i;
-    /* Creazione dei bordi */
-    for (i = 0; i < 3; i++) {
+  
+    for (i = 0; i < 3; i++) { // Creo linee spesse 3 pixel per creare i bordi
         LCD_DrawLine(i, 0, i, FIELD_HEIGHT, White);
         LCD_DrawLine(FIELD_WIDTH + BOARD_X + i, 0, FIELD_WIDTH + BOARD_X + i, FIELD_HEIGHT, White);
         LCD_DrawLine(0, i, FIELD_WIDTH + BOARD_X + 3, i, White);
         LCD_DrawLine(0, FIELD_HEIGHT - 1 - i, FIELD_WIDTH + BOARD_X + 3, FIELD_HEIGHT - 1 - i, White);
     }
-    /* Labels */
+    // Disegno i labels 
     GUI_Text(FIELD_WIDTH + BOARD_X + 5, 20, (uint8_t *)"Score:", COLOR_TEXT, COLOR_BACKGROUND);
     GUI_Text(FIELD_WIDTH + BOARD_X + 5, 100, (uint8_t *)"High", COLOR_TEXT, COLOR_BACKGROUND);
     GUI_Text(FIELD_WIDTH + BOARD_X + 5, 120, (uint8_t *)"Score:", COLOR_TEXT, COLOR_BACKGROUND);
     GUI_Text(FIELD_WIDTH + BOARD_X + 5, 200, (uint8_t *)"Lines:", COLOR_TEXT, COLOR_BACKGROUND);
 }
 
-void update_score(void) {
+void update_score(void) { // Aggiorna il risultato del gioco sullo schermo
     char buffer[20];
     sprintf(buffer, "%d", score);
     GUI_Text(FIELD_WIDTH + BOARD_X + 5, 40, (uint8_t *)buffer, Yellow, COLOR_BACKGROUND);
@@ -121,11 +117,11 @@ void update_score(void) {
     GUI_Text(FIELD_WIDTH + BOARD_X + 5, 220, (uint8_t *)buffer, Yellow, COLOR_BACKGROUND);
 }
 
-void tetris_init(void) {
+void tetris_init(void) { // Inizializza lo stato del gioco
     int i, j;
     LCD_Clear(COLOR_BACKGROUND);
     
-    for(i=0; i<TETRIS_ROWS; i++) {
+    for(i=0; i<TETRIS_ROWS; i++) { // Board virtuale per controllare lo stato del gioco
         for(j=0; j<TETRIS_COLS; j++) {
             board[i][j] = 0;
         }
@@ -142,11 +138,11 @@ void tetris_init(void) {
     GUI_Text(FIELD_WIDTH + BOARD_X + 5, 260, (uint8_t *)"PAUSED", Red, COLOR_BACKGROUND);
 }
 
-void set_random_seed(int seed) {
+void set_random_seed(int seed) { // Imposta un seed per la generazione casuale del tetromino
     srand(seed);
 }
 
-void toggle_pause(void) {
+void toggle_pause(void) { // Alterna lo stato di pausa e di running del gioco
     if (game_state == GAME_OVER) {
         tetris_init();
         return;
@@ -160,7 +156,7 @@ void toggle_pause(void) {
         GUI_Text(FIELD_WIDTH + BOARD_X + 5, 260, (uint8_t *)"        ", COLOR_BACKGROUND, COLOR_BACKGROUND);
         GUI_Text(FIELD_WIDTH + BOARD_X + 5, 260, (uint8_t *)"PLAYING", Green, COLOR_BACKGROUND);
         
-        if (first_start) {
+        if (first_start) { // Se siamo al primo avvio del gioco, avviamo il gioco
             set_random_seed(LPC_TIM0->TC);
             spawn_tetromino();
             draw_tetromino();
@@ -169,29 +165,29 @@ void toggle_pause(void) {
     }
 }
 
-void spawn_tetromino(void) {
+void spawn_tetromino(void) { // Genera un tetromino casuale
     current_type = rand() % 7;
     current_rotation = 0;
-    current_x = (TETRIS_COLS / 2) - 2; 
+    current_x = (TETRIS_COLS / 2) - 2; // Posizione centrale
     current_y = 0;
 }
 
-void draw_tetromino_color(uint16_t color) {
+void draw_tetromino_color(uint16_t color) { // Disegna il tetramino sullo schermo
     int r, c, i;
     for(r = 0; r < 4; r++) {
         for(c = 0; c < 4; c++) {
-            if(pieces[current_type][current_rotation][r][c]) {
+            if(pieces[current_type][current_rotation][r][c]) { // Controlliamo se nella board è presente il blocco
                 int px = BOARD_X + (current_x + c) * BLOCK_SIZE;
                 int py = BOARD_Y + (current_y + r) * BLOCK_SIZE;
                 
-                if (py < 0) continue; // Skip if above screen
+                if (py < 0) continue; // Saltiamo se ci troviamo sopra lo schermo
 
                 for(i = 0; i < BLOCK_SIZE; i++) {
                     LCD_DrawLine(px, py + i, px + BLOCK_SIZE - 1, py + i, color);
                 }
                 
                 if (color != COLOR_BACKGROUND) {
-                    // Draw border
+                    // Bordo nero per distinguere meglio i quadratini
                     LCD_DrawLine(px, py, px + BLOCK_SIZE - 1, py, Black);
                     LCD_DrawLine(px, py + BLOCK_SIZE - 1, px + BLOCK_SIZE - 1, py + BLOCK_SIZE - 1, Black);
                     LCD_DrawLine(px, py, px, py + BLOCK_SIZE - 1, Black);
@@ -210,7 +206,7 @@ void clear_tetromino(void) {
     draw_tetromino_color(COLOR_BACKGROUND);
 }
 
-int check_collision(int px, int py, int rot) {
+int check_collision(int px, int py, int rot) { // Verifica se il prossimo aggiornamento del tetromino avrà collisioni
     int r, c;
     for(r = 0; r < 4; r++) {
         for(c = 0; c < 4; c++) {
@@ -218,15 +214,16 @@ int check_collision(int px, int py, int rot) {
                 int board_x = px + c;
                 int board_y = py + r;
                 
+								// Se esce a destra, a sinitra o sotto il pavimento, c'è collisione
                 if (board_x < 0 || board_x >= TETRIS_COLS || board_y >= TETRIS_ROWS) return 1;
-                if (board_y >= 0 && board[board_y][board_x] != 0) return 1;
+                if (board_y >= 0 && board[board_y][board_x] != 0) return 1; // Se nella baord non è presente un altro tetromino, ok
             }
         }
     }
     return 0;
 }
 
-void draw_board(void) {
+void draw_board(void) { // Ridisegna completamente la baord di gioco
     int r, c, i;
     for(r = 0; r < TETRIS_ROWS; r++) {
          for(c = 0; c < TETRIS_COLS; c++) {
@@ -237,10 +234,10 @@ void draw_board(void) {
              if(color == 0) color = COLOR_BACKGROUND;
              
              for(i = 0; i < BLOCK_SIZE; i++) {
-                LCD_DrawLine(px, py + i, px + BLOCK_SIZE - 1, py + i, color);
+                LCD_DrawLine(px, py + i, px + BLOCK_SIZE - 1, py + i, color); // Disegna il tetromino
              }
              
-             if (color != COLOR_BACKGROUND) {
+             if (color != COLOR_BACKGROUND) { // Disegna il bordo
                 LCD_DrawLine(px, py, px + BLOCK_SIZE - 1, py, Black);
                 LCD_DrawLine(px, py + BLOCK_SIZE - 1, px + BLOCK_SIZE - 1, py + BLOCK_SIZE - 1, Black);
                 LCD_DrawLine(px, py, px, py + BLOCK_SIZE - 1, Black);
@@ -254,7 +251,7 @@ void check_lines(void) {
     int r, c, k, i;
     int lines_cleared_now = 0;
     
-    // Scansiona dal basso verso l'alto
+    // Scansiona dal basso verso l'alto e verifica che tutta la riga sia 1
     for(r = TETRIS_ROWS - 1; r >= 0; r--) {
         int full = 1;
         for(c = 0; c < TETRIS_COLS; c++) {
@@ -273,7 +270,7 @@ void check_lines(void) {
                     board[k][c] = board[k-1][c];
                 }
             }
-            // Pulisci la prima riga in alto
+            // Pulisce la prima riga in alto
             for(c = 0; c < TETRIS_COLS; c++) {
                 board[0][c] = 0;
             }
@@ -283,7 +280,7 @@ void check_lines(void) {
         }
     }
     
-    if(lines_cleared_now > 0) {
+    if(lines_cleared_now > 0) { // Calcolo dei punteggi
         lines_cleared += lines_cleared_now;
         
         if (lines_cleared_now == 1) {
@@ -295,17 +292,15 @@ void check_lines(void) {
         }
         
         update_score();
-        
-        // Ridisegna TUTTA la board per sicurezza
         draw_board();
     }
 }
 
-void place_tetromino(void) {
+void place_tetromino(void) { // Piazza definitivamente il tetromino nella board
     int r, c;
     for(r = 0; r < 4; r++) {
         for(c = 0; c < 4; c++) {
-            if(pieces[current_type][current_rotation][r][c]) {
+            if(pieces[current_type][current_rotation][r][c]) { // Salva il tetromino nella board
                 int board_x = current_x + c;
                 int board_y = current_y + r;
                 if (board_y >= 0 && board_y < TETRIS_ROWS && board_x >= 0 && board_x < TETRIS_COLS) {
@@ -332,7 +327,7 @@ void place_tetromino(void) {
     }
 }
 
-void move_left(void) {
+void move_left(void) { // Muove a sinsitra
     if (game_state != GAME_RUNNING) return;
     if (!check_collision(current_x - 1, current_y, current_rotation)) {
         clear_tetromino();
@@ -341,7 +336,7 @@ void move_left(void) {
     }
 }
 
-void move_right(void) {
+void move_right(void) { // Muove a destra
     if (game_state != GAME_RUNNING) return;
     if (!check_collision(current_x + 1, current_y, current_rotation)) {
         clear_tetromino();
@@ -350,7 +345,7 @@ void move_right(void) {
     }
 }
 
-void rotate_piece(void) {
+void rotate_piece(void) { // Ruota di 90°
     int next_rotation;
     if (game_state != GAME_RUNNING) return;
     
@@ -363,7 +358,7 @@ void rotate_piece(void) {
     }
 }
 
-void handle_timer_tick(void) {
+void handle_timer_tick(void) { // Chiamata dal TIMER0 verifica fa cadere il tetromino e verifica le condizioni del gioco
     if (game_state != GAME_RUNNING) return;
     
     if (!check_collision(current_x, current_y + 1, current_rotation)) {
@@ -375,7 +370,7 @@ void handle_timer_tick(void) {
     }
 }
 
-void hard_drop(void) {
+void hard_drop(void) { // Posiziona istantaneamente il tetromino se possibile
     if (game_state != GAME_RUNNING) return;
     
     clear_tetromino();
