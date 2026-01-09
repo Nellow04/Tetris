@@ -14,6 +14,14 @@
 #define COLOR_GRID_LINE 	Grey
 #define COLOR_TEXT 				White
 #define Orange        		0xFD20
+#define COLOR_POWERUP_HALF 0xCAE4       // Brown
+#define COLOR_POWERUP_SLOW 0xA145       // Gold
+
+// Tipi di blocchi nella board
+#define BLOCK_EMPTY         0
+#define BLOCK_NORMAL        1
+#define POWERUP_HALF_LINES  2
+#define POWERUP_SLOW_DOWN   3
 
 // Variabili globali
 extern volatile uint32_t score;

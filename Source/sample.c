@@ -29,7 +29,7 @@ int main(void)
 	init_timer(0, 24, 0, 3, 1000000); 			
 	enable_timer(0);
 	
-	init_timer(2, 0, 0, 3, 0xC350 ); 	
+	init_timer(2, 0, 0, 3, 0xC3501); 	
 	enable_timer(2);
 	
 	

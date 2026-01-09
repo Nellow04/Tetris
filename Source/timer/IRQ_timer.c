@@ -35,6 +35,8 @@ extern unsigned char led_value;					/* defined in funct_led								*/
 extern volatile uint32_t standard_speed_mr0;
 #include "../adc/adc.h"
 
+extern volatile int slow_down_timer;
+
 void TIMER0_IRQHandler (void)
 {
 
@@ -44,7 +46,11 @@ void TIMER0_IRQHandler (void)
 		handle_timer_tick();
 		
 		/* Update speed for next cycle to avoid jitter */
-		if (down_activate) {
+        // Check slow down powerup first
+        if (slow_down_timer > 0) {
+            LPC_TIM0->MR0 = 1000000; // Force 1 sq/s
+        }
+		else if (down_activate) {
 			LPC_TIM0->MR0 = standard_speed_mr0 / 2;
 		} else {
 			LPC_TIM0->MR0 = standard_speed_mr0;
@@ -76,6 +82,14 @@ void TIMER0_IRQHandler (void)
   return;
 }
 
+void TIMER1_IRQHandler (void)
+{
+	if (LPC_TIM1->IR & 01)
+	{
+	}
+	LPC_TIM1->IR = 1;
+}
+
 /******************************************************************************
 ** Function name:		Timer2_IRQHandler
 **
@@ -87,6 +101,8 @@ void TIMER0_IRQHandler (void)
 ******************************************************************************/
 void TIMER2_IRQHandler (void)
 {
+	if (slow_down_timer > 0) slow_down_timer--;
+	
 	ADC_start_conversion();
 	static int J_select = 0;
 	static int J_down = 0;
