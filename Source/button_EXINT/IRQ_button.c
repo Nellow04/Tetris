@@ -12,7 +12,6 @@ void EINT0_IRQHandler (void)	  	/* INT0														 */
 	LPC_PINCON->PINSEL4    &= ~(1 << 20);     /* GPIO pin selection */
 	down_0=1;
 	LPC_SC->EXTINT &= (1 << 0);     /* clear pending interrupt         */
-	reset_RIT();
 }
 
 
@@ -23,7 +22,6 @@ void EINT1_IRQHandler (void)	  	/* KEY1														 */
 	down_1=1;
 	LPC_SC->EXTINT &= (1 << 1);     /* clear pending interrupt         */
 	toggle_pause();
-	reset_RIT();
 }
 
 void EINT2_IRQHandler (void)	  	/* KEY2														 */
@@ -33,7 +31,6 @@ void EINT2_IRQHandler (void)	  	/* KEY2														 */
 	down_2=1;
   LPC_SC->EXTINT &= (1 << 2);     /* clear pending interrupt         */ 
 	hard_drop();
-	reset_RIT();
 }
 
 

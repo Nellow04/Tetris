@@ -6,6 +6,14 @@
 #include "led/led.h"
 #include "tetris/tetris.h"
 
+/* I file utilizzati per sviluppare il gioco sono i seguenti:
+sample.c
+tetris.c
+tetris.h
+IRQ_timer.c
+IRQ_button.c
+*/
+
 int main(void)
 {
   SystemInit();  												/* System Initialization (i.e., PLL)  */
@@ -16,7 +24,7 @@ int main(void)
 
 	tetris_init();
 
-	init_timer(0, 0, 0, 3, 0x7A120); 			
+	init_timer(0, 24, 0, 3, 1000000); 			
 	enable_timer(0);
 	
 	init_timer(2, 0, 0, 3, 0xC350 ); 	
