@@ -313,10 +313,10 @@ void check_lines(void) {
         lines_cleared += lines_cleared_now;
         lines_since_last_powerup += lines_cleared_now;
 
-        // Testing value: 1 instead of 5
-        if (lines_since_last_powerup >= 1) { 
+        // Powerup every 5 lines
+        if (lines_since_last_powerup >= 5) { 
             spawn_powerup();
-            lines_since_last_powerup = 0;
+            lines_since_last_powerup -= 5;
         }
 
         if (lines_cleared_now == 1) {
@@ -351,7 +351,7 @@ void spawn_powerup(void) {
 
     if (count > 0) {
         int idx = rand() % count;
-        // Debug: force alternating types for testing visibility
+        // Randomly choose powerup type
         int type = (rand() % 2) ? POWERUP_HALF_LINES : POWERUP_SLOW_DOWN;
         board[candles[idx].r][candles[idx].c] = type;
         
