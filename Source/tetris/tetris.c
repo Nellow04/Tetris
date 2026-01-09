@@ -13,6 +13,7 @@ volatile uint32_t lines_cleared = 0;
 volatile GameState game_state = GAME_PAUSED;
 // Powerup globals
 volatile int lines_since_last_powerup = 0;
+volatile int lines_since_last_malus = 0;
 volatile int slow_down_timer = 0; // Contatore per powerup rallentamento (in tick da 20ms)
 
 // Stato del tetromino corrente
@@ -96,6 +97,7 @@ void draw_tetromino(void);
 void spawn_powerup(void);
 void activate_powerup_half(void);
 void activate_powerup_slow(void);
+void activate_malus_line(void);
 
 void draw_grid(void) { // Disegna l'interfaccia statica del gioco
     int i;
@@ -135,6 +137,8 @@ void tetris_init(void) { // Inizializza lo stato del gioco
     
     score = 0;
     lines_cleared = 0;
+    lines_since_last_powerup = 0;
+    lines_since_last_malus = 0;
 
     draw_grid();
     update_score();
@@ -312,11 +316,18 @@ void check_lines(void) {
     if(lines_cleared_now > 0) { // Calcolo dei punteggi
         lines_cleared += lines_cleared_now;
         lines_since_last_powerup += lines_cleared_now;
+        lines_since_last_malus += lines_cleared_now;
 
         // Powerup every 5 lines
         if (lines_since_last_powerup >= 5) { 
             spawn_powerup();
             lines_since_last_powerup -= 5;
+        }
+        
+        // Malus logic (DEBUG: 1 line instead of 10)
+        if (lines_since_last_malus >= 10) {
+             activate_malus_line();
+             lines_since_last_malus = 0; // Reset counter
         }
 
         if (lines_cleared_now == 1) {
@@ -410,6 +421,41 @@ void activate_powerup_half(void) {
 
 void activate_powerup_slow(void) {
     slow_down_timer = 750; // 15 seconds * 50 ticks/sec (20ms) = 750
+}
+
+void activate_malus_line(void) {
+    int r, c;
+    
+    // Check Overflow (If blocks are in the top row, they will be pushed out)
+    for(c = 0; c < TETRIS_COLS; c++) {
+        if (board[0][c] != 0) {
+            game_state = GAME_OVER;
+            GUI_Text(FIELD_WIDTH + BOARD_X + 5, 260, (uint8_t *)"GAME OVER", Red, COLOR_BACKGROUND);
+            return;
+        }
+    }
+
+    // Shift Rows Up
+    for(r = 0; r < TETRIS_ROWS - 1; r++) {
+       for(c = 0; c < TETRIS_COLS; c++) {
+           board[r][c] = board[r+1][c];
+       }
+    }
+    
+    // Generate Malus Line (7 blocks)
+    int last_row = TETRIS_ROWS - 1;
+    for(c = 0; c < TETRIS_COLS; c++) board[last_row][c] = 0;
+    
+    int filled = 0;
+    while(filled < 7) {
+        int col = rand() % TETRIS_COLS;
+        if (board[last_row][col] == 0) {
+             board[last_row][col] = Grey; 
+             filled++;
+        }
+    }
+    
+    draw_board();
 }
 
 void place_tetromino(void) { // Piazza definitivamente il tetromino nella board
