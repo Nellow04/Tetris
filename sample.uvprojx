@@ -715,6 +715,26 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>adc</GroupName>
+          <Files>
+            <File>
+              <FileName>adc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Source\adc\adc.h</FilePath>
+            </File>
+            <File>
+              <FileName>IRQ_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\adc\IRQ_adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>lib_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\adc\lib_adc.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>
@@ -1373,6 +1393,26 @@
               <FileName>tetris.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\Source\tetris\tetris.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>adc</GroupName>
+          <Files>
+            <File>
+              <FileName>adc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Source\adc\adc.h</FilePath>
+            </File>
+            <File>
+              <FileName>IRQ_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\adc\IRQ_adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>lib_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\adc\lib_adc.c</FilePath>
             </File>
           </Files>
         </Group>

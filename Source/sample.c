@@ -5,6 +5,7 @@
 #include "joystick/joystick.h"
 #include "led/led.h"
 #include "tetris/tetris.h"
+#include "adc/adc.h"
 
 /* I file utilizzati per sviluppare il gioco sono i seguenti:
 sample.c
@@ -21,6 +22,7 @@ int main(void)
   LCD_Initialization();									/* Inizializzazione Display 					*/
 	joystick_init();											/* Inizializzazione Joystick 					*/
 	LED_init();
+	ADC_init();
 
 	tetris_init();
 

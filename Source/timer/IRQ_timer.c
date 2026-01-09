@@ -32,6 +32,9 @@ volatile int down_2 = 0;
 **
 ******************************************************************************/
 extern unsigned char led_value;					/* defined in funct_led								*/
+extern volatile uint32_t standard_speed_mr0;
+#include "../adc/adc.h"
+
 void TIMER0_IRQHandler (void)
 {
 
@@ -39,6 +42,14 @@ void TIMER0_IRQHandler (void)
 	if (LPC_TIM0->IR & 01)
 	{
 		handle_timer_tick();
+		
+		/* Update speed for next cycle to avoid jitter */
+		if (down_activate) {
+			LPC_TIM0->MR0 = standard_speed_mr0 / 2;
+		} else {
+			LPC_TIM0->MR0 = standard_speed_mr0;
+		}
+		
 		LPC_TIM0->IR = 1;			/* clear interrupt flag */
 	}
 		/* Match register 1 interrupt service routine */
@@ -76,6 +87,7 @@ void TIMER0_IRQHandler (void)
 ******************************************************************************/
 void TIMER2_IRQHandler (void)
 {
+	ADC_start_conversion();
 	static int J_select = 0;
 	static int J_down = 0;
 	static int J_left = 0;
@@ -105,7 +117,7 @@ void TIMER2_IRQHandler (void)
 		switch(J_down){
 			case 1:
 				//code here
-				LPC_TIM0->MR0 = 500000; // 0.5s
+				LPC_TIM0->MR0 = standard_speed_mr0 / 2;
 				LPC_TIM0->TCR = 2;       // Reset
 				LPC_TIM0->TCR = 1;       // Enable
 			down_activate =1;
@@ -116,7 +128,7 @@ void TIMER2_IRQHandler (void)
 	}
 	else{
 			if(J_down != 0) {
-				LPC_TIM0->MR0 = 1000000; // 1s
+				LPC_TIM0->MR0 = standard_speed_mr0; 
 				LPC_TIM0->TCR = 2;       // Reset
 				LPC_TIM0->TCR = 1;       // Enable
 			}
