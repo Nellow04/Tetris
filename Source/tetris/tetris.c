@@ -135,6 +135,8 @@ void tetris_init(void) { // Inizializza lo stato del gioco
         }
     }
     
+		music_init();
+		
     score = 0;
     lines_cleared = 0;
     lines_since_last_powerup = 0;

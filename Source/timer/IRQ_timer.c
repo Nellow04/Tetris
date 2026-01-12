@@ -11,6 +11,7 @@
 #include "timer.h"
 #include "../led/led.h"
 #include "../tetris/tetris.h"
+#include "../music/music.h"
 
 int right_activate;
 int down_activate;
@@ -82,12 +83,13 @@ void TIMER0_IRQHandler (void)
   return;
 }
 
-void TIMER1_IRQHandler (void)
+void TIMER3_IRQHandler (void)
 {
-	if (LPC_TIM1->IR & 01)
+	if (LPC_TIM3->IR & 01)
 	{
+		music_handle_timer_irq();
 	}
-	LPC_TIM1->IR = 1;
+	LPC_TIM3->IR = 1; /* clear interrupt flag */
 }
 
 /******************************************************************************
@@ -101,6 +103,7 @@ void TIMER1_IRQHandler (void)
 ******************************************************************************/
 void TIMER2_IRQHandler (void)
 {
+	music_update_tick();
 	if (slow_down_timer > 0) slow_down_timer--;
 	
 	ADC_start_conversion();
