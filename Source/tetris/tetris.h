@@ -14,8 +14,8 @@
 #define COLOR_GRID_LINE 	Grey
 #define COLOR_TEXT 				White
 #define Orange        		0xFD20
-#define COLOR_POWERUP_HALF 0xCAE4       // Brown
-#define COLOR_POWERUP_SLOW 0xA145       // Gold
+#define COLOR_POWERUP_HALF 0xCAE4       // Marrone
+#define COLOR_POWERUP_SLOW 0xA145       // Oro
 
 // Tipi di blocchi nella board
 #define BLOCK_EMPTY         0

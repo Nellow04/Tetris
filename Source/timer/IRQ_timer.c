@@ -47,9 +47,9 @@ void TIMER0_IRQHandler (void)
 		handle_timer_tick();
 		
 		/* Update speed for next cycle to avoid jitter */
-        // Check slow down powerup first
+        // Rallentamento per il power up
         if (slow_down_timer > 0) {
-            LPC_TIM0->MR0 = 1000000; // Force 1 sq/s
+            LPC_TIM0->MR0 = 1000000; // 1sq/s
         }
 		else if (down_activate) {
 			LPC_TIM0->MR0 = standard_speed_mr0 / 2;

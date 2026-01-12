@@ -14,7 +14,7 @@ volatile GameState game_state = GAME_PAUSED;
 // Powerup globals
 volatile int lines_since_last_powerup = 0;
 volatile int lines_since_last_malus = 0;
-volatile int slow_down_timer = 0; // Contatore per powerup rallentamento (in tick da 20ms)
+volatile int slow_down_timer = 0; // Contatore per il power up del rallentamento
 
 // Stato del tetromino corrente
 volatile int current_x = 0;
@@ -283,14 +283,9 @@ void check_lines(void) {
         
         if(full) {
             
-            // Check Powerup Activation BEFORE clearing
+            // Controllo dell'attivazione dei power up prima della pulizia della linea
             if (powerup_type == POWERUP_HALF_LINES) {
                 activate_powerup_half();
-                // Re-scan logic might be needed because board changed drastically
-                // Simply return or restart check_lines would be safer, but let's stick to simple flow.
-                // Since activate_powerup_half clears lines, we should probably stop this loop and 
-                // let the game cycle continue, or recursively check.
-                // For simplicity: Update scores and exit check_lines.
                 return; 
             }
             if (powerup_type == POWERUP_SLOW_DOWN) {
@@ -320,13 +315,13 @@ void check_lines(void) {
         lines_since_last_powerup += lines_cleared_now;
         lines_since_last_malus += lines_cleared_now;
 
-        // Powerup every 5 lines
+        // Powerup ogni 5 linee
         if (lines_since_last_powerup >= 5) { 
             spawn_powerup();
             lines_since_last_powerup -= 5;
         }
         
-        // Malus logic (DEBUG: 1 line instead of 10)
+        // Malus ogni 10 linee
         if (lines_since_last_malus >= 10) {
              activate_malus_line();
              lines_since_last_malus = 0; // Reset counter
@@ -350,10 +345,9 @@ void spawn_powerup(void) {
     static struct Point { int r; int c; } candles[TETRIS_ROWS * TETRIS_COLS]; // Static to avoid stack overflow
     int count = 0;
 
-    // Find all valid blocks (non-empty, non-powerup)
+    // Trova i blocchi validi, che non siano vuoti o power up
     for(r = 0; r < TETRIS_ROWS; r++) {
          for(c = 0; c < TETRIS_COLS; c++) {
-             // Debugged condition: ensure we target actual blocks 
              if (board[r][c] != 0 && board[r][c] != POWERUP_HALF_LINES && board[r][c] != POWERUP_SLOW_DOWN) {
                  candles[count].r = r;
                  candles[count].c = c;
@@ -364,11 +358,10 @@ void spawn_powerup(void) {
 
     if (count > 0) {
         int idx = rand() % count;
-        // Randomly choose powerup type
+        // Scelta casuale del power up
         int type = (rand() % 2) ? POWERUP_HALF_LINES : POWERUP_SLOW_DOWN;
         board[candles[idx].r][candles[idx].c] = type;
-        
-        // Force full redraw to ensure it appears
+
         draw_board();
     }
 }
@@ -377,12 +370,10 @@ void activate_powerup_half(void) {
     int r, c, k;
     int cleared_count = 0;
     
-    // Clear bottom half: from ROWS-1 down to ROWS/2
-    // Actually spec says "bottom half", so rows indices [ROWS/2 .. ROWS-1]
-    
+		// Pulizia della metà inferiore delle linee
     for(r = TETRIS_ROWS - 1; r >= TETRIS_ROWS / 2; r--) {
         cleared_count++;
-        // Shift global rows down
+        // Shift delle linee
         for(k = r; k > 0; k--) {
             for(c = 0; c < TETRIS_COLS; c++) {
                 board[k][c] = board[k-1][c];
@@ -391,30 +382,17 @@ void activate_powerup_half(void) {
         for(c = 0; c < TETRIS_COLS; c++) {
            board[0][c] = 0;
         }
-        // Since we shifted down into 'r', we must process 'r' again? 
-        // No, we are clearing the slot 'r'. Shifting makes the line above `r` fall into `r`.
-        // So effectively we just consumed one line of the board stack.
-        // But since we want to clear the *visual* bottom half, we should just repeat this process N times 
-        // where N is number of lines to clear.
-        
-        // Wait, loop approach:
-        // We want to remove the bottom 10 lines.
-        // The loop updates 'board' in place.
-        // If I shift immediately, calculate r again.
-        r++; // Stay on same index because new content fell here
-        if (cleared_count >= TETRIS_ROWS / 2) break; // Safety break
+        r++; 
+        if (cleared_count >= TETRIS_ROWS / 2) break; 
     }
-    
-    // Scoring
+
     lines_cleared += cleared_count;
-    // Spec: "If > 4 lines, award points in groups of 4"
     if (cleared_count <= 4) {
-         // Logic is vague "usual number of points". Let's assume as if they were cleared normally
-         score += 100 * cleared_count; // Simplified
+         score += 100 * cleared_count; 
     } else {
         int groups = cleared_count / 4;
         int rem = cleared_count % 4;
-        score += groups * 600; // 4 lines = 600
+        score += groups * 600; 
         score += rem * 100;
     }
     update_score();
@@ -422,13 +400,13 @@ void activate_powerup_half(void) {
 }
 
 void activate_powerup_slow(void) {
-    slow_down_timer = 750; // 15 seconds * 50 ticks/sec (20ms) = 750
+    slow_down_timer = 750; // 15s * 50ticks/sec (20ms) = 750
 }
 
 void activate_malus_line(void) {
     int r, c;
     
-    // Check Overflow (If blocks are in the top row, they will be pushed out)
+    // Check Overflow
     for(c = 0; c < TETRIS_COLS; c++) {
         if (board[0][c] != 0) {
             game_state = GAME_OVER;
@@ -437,14 +415,14 @@ void activate_malus_line(void) {
         }
     }
 
-    // Shift Rows Up
+    // Shift delle linee verso l'alto
     for(r = 0; r < TETRIS_ROWS - 1; r++) {
        for(c = 0; c < TETRIS_COLS; c++) {
            board[r][c] = board[r+1][c];
        }
     }
     
-    // Generate Malus Line (7 blocks)
+    // Genera la linea malus
     int last_row = TETRIS_ROWS - 1;
     for(c = 0; c < TETRIS_COLS; c++) board[last_row][c] = 0;
     
